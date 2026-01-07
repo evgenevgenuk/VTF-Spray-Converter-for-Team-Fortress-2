@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VTF Spray Converter</title>
+    <link rel="shortcut icon" href="https://rafradek.github.io/Mishcatt/favicon.ico">
+    <link rel="icon" type="image/png" href="https://rafradek.github.io/Mishcatt/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #1e1e1e;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #ff8800;
+            margin: 0;
+            font-size: 2.2em;
+        }
+        .card {
+            background: #2d2d2d;
+            padding: 25px;
+            border-radius: 14px;
+            margin-bottom: 25px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+        }
+        .upload-zone {
+            border: 3px dashed #ff8800;
+            border-radius: 12px;
+            padding: 45px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .upload-zone:hover {
+            background: rgba(255,136,0,0.1);
+        }
+        .upload-zone p {
+            margin: 8px 0;
+            color: #bbbbbb;
+        }
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 18px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: 500;
+        }
+        select, input[type=text], input[type=number] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            background: #3a3a3a;
+            color: white;
+        }
+        button {
+            padding: 12px 26px;
+            border: none;
+            border-radius: 8px;
+            background: #ff8800;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px 10px 0 0;
+        }
+        button:hover {
+            background: #ff9a22;
+        }
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        .preview-wrapper {
+            text-align: center;
+        }
+        #preview {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #444;
+            border-radius: 8px;
+            background: #111;
+        }
+        .info {
+            color: #aaaaaa;
+            font-size: 0.95em;
+        }
+        #filesizee span {
+            color: #4caf50;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>VTF Spray Converter for TF2</h1>
+        </header>
+
+        <div class="card upload-zone" onclick="document.getElementById('files').click()">
+            <h3>Завантаж картинки чи відео</h3>
+            <p>Клікни тут або кинь файли</p>
+            <p class="info">Картинки, .tga, GIF, відео – все ок</p>
+            <input type="file" id="files" name="files[]" accept="image/*,.tga,video/*" onchange="handleFileSelect(event)" multiple style="display:none">
+        </div>
+
+        <div class="card">
+            <h3>Налаштування</h3>
+            <div class="settings-grid">
+                <div>
+                    <label>Ширина</label>
+                    <select id="widthSetting" onchange="setResolution()">
+                        <option value="auto">Авто</option>
+                        <option value="1024">1024</option>
+                        <option value="768">768</option>
+                        <option value="720">720</option>
+                        <option value="512">512</option>
+                        <option value="256">256</option>
+                        <option value="128">128</option>
+                        <option value="64">64</option>
+                        <option value="32">32</option>
+                        <option value="16">16</option>
+                        <option value="8">8</option>
+                        <option value="4">4</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                    <input value="1024" id="widthSettingCus" onchange="setResolution()" type="text" style="display:none; margin-top:8px">
+                </div>
+
+                <div>
+                    <label>Висота</label>
+                    <select id="heightSetting" onchange="setResolution()">
+                        <option value="auto">Авто</option>
+                        <option value="1024">1024</option>
+                        <option value="768">768</option>
+                        <option value="720">720</option>
+                        <option value="512">512</option>
+                        <option value="256">256</option>
+                        <option value="128">128</option>
+                        <option value="64">64</option>
+                        <option value="32">32</option>
+                        <option value="16">16</option>
+                        <option value="8">8</option>
+                        <option value="4">4</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                    <input value="1024" id="heightSettingCus" onchange="setResolution()" type="text" style="display:none; margin-top:8px">
+                </div>
+
+                <div>
+                    <label>Формат</label>
+                    <select id="format" onchange="setOutputType(this)">
+                        <option value="0">RGBA8888</option>
+                        <option value="2">RGB888</option>
+                        <option value="4">RGB565</option>
+                        <option value="21">BGRA5551</option>
+                        <option value="19">BGRA4444</option>
+                        <option value="13" selected>DXT1 (рекомендовано)</option>
+                        <option value="15">DXT5 (з прозорістю)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Якість стиснення</label>
+                    <select id="dxtquality" onchange="onPropertyChange()">
+                        <option value="0">Fast</option>
+                        <option value="1">Normal</option>
+                        <option value="2" selected>Slow (рекомендовано)</option>
+                        <option value="3">Very slow</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="margin-top:25px;">
+                <label><input type="checkbox" id="mipmapsCheck" onclick="mipmapclick = true" onchange="onPropertyChange()"> Генерувати міпмапи (fading spray)</label><br><br>
+                <label><input type="checkbox" id="rescaleCheck" onchange="setResolution()" checked> Масштабувати картинку</label><br><br>
+                <label><input type="checkbox" id="singleFrame" onchange="setSingleFrame()"> Одна картинка для всіх кадрів анімації</label>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px;">
+                <div>
+                    <p id="filesizee">Розмір файлу: <span style="color:#4caf50">510 KB</span></p>
+                    <label>Ім'я файлу: <input type="text" id="outputFilename" value="spray" style="width:180px;"></label>
+                </div>
+                <div>
+                    <button id="saveButton" onclick="createVTF()" disabled>Скачати VTF</button>
+                    <button id="saveButtonVMT" onclick="downloadVMT()" disabled>Скачати VMT</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card preview-wrapper">
+            <h3>Попередній перегляд</h3>
+            <canvas id="preview" width="512" height="512"></canvas>
+            <canvas id="canvas" style="display:none"></canvas>
+            <canvas id="tempCanvas" style="display:none"></canvas>
+            <div id="frames"></div>
+        </div>
+
+        <div id="mipmaps" style="display:none"></div>
+        <input type="file" id="files0" accept="image/*,.tga,video/*" onchange="changeMipmap(event,0)" disabled multiple style="display:none">
+        
+        <div id="videoImporter" style="display:none" class="card">
+            <!-- відео налаштування тут якщо треба -->
+        </div>
+    </div>
+
+    <script src="./VTF Spray Converter_files/tga.js.Без названия"></script>
+    <script src="./VTF Spray Converter_files/libgif.js.Без названия"></script>
+    <script src="./VTF Spray Converter_files/dither.js.Без названия"></script>
+    <script src="./VTF Spray Converter_files/quantize.js.Без названия"></script>
+    <script src="./VTF Spray Converter_files/dxt.js.Без названия"></script>
+    <script src="./VTF Spray Converter_files/vtf.js.Без названия"></script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VTF Spray Converter</title>
+    <link rel="shortcut icon" href="https://rafradek.github.io/Mishcatt/favicon.ico">
+    <link rel="icon" type="image/png" href="https://rafradek.github.io/Mishcatt/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #1e1e1e;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h1 {
+            color: #ff8800;
+            margin: 0;
+            font-size: 2.2em;
+        }
+        .card {
+            background: #2d2d2d;
+            padding: 25px;
+            border-radius: 14px;
+            margin-bottom: 25px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+        }
+        .upload-zone {
+            border: 3px dashed #ff8800;
+            border-radius: 12px;
+            padding: 45px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .upload-zone:hover {
+            background: rgba(255,136,0,0.1);
+        }
+        .upload-zone p {
+            margin: 8px 0;
+            color: #bbbbbb;
+        }
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 18px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: 500;
+        }
+        select, input[type=text], input[type=number] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            background: #3a3a3a;
+            color: white;
+        }
+        button {
+            padding: 12px 26px;
+            border: none;
+            border-radius: 8px;
+            background: #ff8800;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 10px 10px 0 0;
+        }
+        button:hover {
+            background: #ff9a22;
+        }
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        .preview-wrapper {
+            text-align: center;
+        }
+        #preview {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #444;
+            border-radius: 8px;
+            background: #111;
+        }
+        .info {
+            color: #aaaaaa;
+            font-size: 0.95em;
+        }
+        #filesizee span {
+            color: #4caf50;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>VTF Spray Converter for TF2</h1>
+        </header>
+
+        <div class="card upload-zone" onclick="document.getElementById('files').click()">
+            <h3>Завантаж картинки чи відео</h3>
+            <p>Клікни тут або кинь файли</p>
+            <p class="info">Картинки, .tga, GIF, відео – все ок</p>
+            <input type="file" id="files" name="files[]" accept="image/*,.tga,video/*" onchange="handleFileSelect(event)" multiple style="display:none">
+        </div>
+
+        <div class="card">
+            <h3>Налаштування</h3>
+            <div class="settings-grid">
+                <div>
+                    <label>Ширина</label>
+                    <select id="widthSetting" onchange="setResolution()">
+                        <option value="auto">Авто</option>
+                        <option value="1024">1024</option>
+                        <option value="768">768</option>
+                        <option value="720">720</option>
+                        <option value="512">512</option>
+                        <option value="256">256</option>
+                        <option value="128">128</option>
+                        <option value="64">64</option>
+                        <option value="32">32</option>
+                        <option value="16">16</option>
+                        <option value="8">8</option>
+                        <option value="4">4</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                    <input value="1024" id="widthSettingCus" onchange="setResolution()" type="text" style="display:none; margin-top:8px">
+                </div>
+
+                <div>
+                    <label>Висота</label>
+                    <select id="heightSetting" onchange="setResolution()">
+                        <option value="auto">Авто</option>
+                        <option value="1024">1024</option>
+                        <option value="768">768</option>
+                        <option value="720">720</option>
+                        <option value="512">512</option>
+                        <option value="256">256</option>
+                        <option value="128">128</option>
+                        <option value="64">64</option>
+                        <option value="32">32</option>
+                        <option value="16">16</option>
+                        <option value="8">8</option>
+                        <option value="4">4</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                    <input value="1024" id="heightSettingCus" onchange="setResolution()" type="text" style="display:none; margin-top:8px">
+                </div>
+
+                <div>
+                    <label>Формат</label>
+                    <select id="format" onchange="setOutputType(this)">
+                        <option value="0">RGBA8888</option>
+                        <option value="2">RGB888</option>
+                        <option value="4">RGB565</option>
+                        <option value="21">BGRA5551</option>
+                        <option value="19">BGRA4444</option>
+                        <option value="13" selected>DXT1 (рекомендовано)</option>
+                        <option value="15">DXT5 (з прозорістю)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Якість стиснення</label>
+                    <select id="dxtquality" onchange="onPropertyChange()">
+                        <option value="0">Fast</option>
+                        <option value="1">Normal</option>
+                        <option value="2" selected>Slow (рекомендовано)</option>
+                        <option value="3">Very slow</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="margin-top:25px;">
+                <label><input type="checkbox" id="mipmapsCheck" onclick="mipmapclick = true" onchange="onPropertyChange()"> Генерувати міпмапи (fading spray)</label><br><br>
+                <label><input type="checkbox" id="rescaleCheck" onchange="setResolution()" checked> Масштабувати картинку</label><br><br>
+                <label><input type="checkbox" id="singleFrame" onchange="setSingleFrame()"> Одна картинка для всіх кадрів анімації</label>
+            </div>
+        </div>
+
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px;">
+                <div>
+                    <p id="filesizee">Розмір файлу: <span style="color:#4caf50">510 KB</span></p>
+                    <label>Ім'я файлу: <input type="text" id="outputFilename" value="spray" style="width:180px;"></label>
+                </div>
+                <div>
+                    <button id="saveButton" onclick="createVTF()" disabled>Скачати VTF</button>
+                    <button id="saveButtonVMT" onclick="downloadVMT()" disabled>Скачати VMT</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card preview-wrapper">
+            <h3>Попередній перегляд</h3>
+            <canvas id="preview" width="512" height="512"></canvas>
+            <canvas id="canvas" style="display:none"></canvas>
+            <canvas id="tempCanvas" style="display:none"></canvas>
+            <div id="frames"></div>
+        </div>
+
+        <div id="mipmaps" style="display:none"></div>
+        <input type="file" id="files0" accept="image/*,.tga,video/*" onchange="changeMipmap(event,0)" disabled multiple style="display:none">
+        
+        <div id="videoImporter" style="display:none" class="card">
+            <!-- відео налаштування тут якщо треба -->
+        </div>
+    </div>
+
+    <script src="./VTF Spray Converter_files/tga.js.Без названия"></script>
+    <script src="./VTF Spray Converter_files/libgif.js.Без названия"></script>
+    <script src="./VTF Spray Converter_files/dither.js.Без названия"></script>
+    <script src="./VTF Spray Converter_files/quantize.js.Без названия"></script>
+    <script src="./VTF Spray Converter_files/dxt.js.Без названия"></script>
+    <script src="./VTF Spray Converter_files/vtf.js.Без названия"></script>
+</body>
+</html>
